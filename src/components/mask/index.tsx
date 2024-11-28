@@ -131,7 +131,7 @@ export const Mask: FC<MaskProps> = (props) => {
           width={width}
           height={height}
         />
-        <svg viewBox={`0 0 ${width} ${height}`} width={cWidth} height={cHeight} className="brush">
+        <svg viewBox={`0 0 ${width} ${height}`} width={cWidth} height={cHeight} className="brush" style={{ opacity: 0.8 }}>
           <circle
             ref={setCircle}
             cx="0"
@@ -140,8 +140,10 @@ export const Mask: FC<MaskProps> = (props) => {
             stroke="red"
             fill={`${brushColor}`}
             strokeWidth="2"
-            style={{ display: 'none', opacity: 0.8 }}
+            style={{ display: 'none' }}
           ></circle>
+          <line x1={width / 2} y1={0} x2={width / 2} y2={height} stroke="gray"></line>
+          <line x1={0} y1={height / 2} x2={width} y2={height / 2} stroke="gray"></line>
         </svg>
       </div>
     </div>
