@@ -1,0 +1,11 @@
+.mask-canvas {
+  position: relative;
+  cursor: crosshair;
+}
+
+.brush {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  pointer-events: none;
+}

@@ -1,0 +1,39 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 40px;
+  margin: 20px;
+
+  --canvas-size: 256px;
+}
+
+.source-list {
+  display: grid;
+  row-gap: 20px;
+}
+
+.canvas-list {
+  user-select: none;
+  display: flex;
+  column-gap: 12px;
+}
+
+.input-box {
+  height: 40px;
+  font-weight: bold;
+}
+
+.canvas-box {
+  text-align: center;
+}
+
+canvas {
+  width: var(--canvas-size);
+  height: var(--canvas-size);
+  border: 1px solid #eee;
+}

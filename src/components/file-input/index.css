@@ -1,0 +1,19 @@
+.file-input {
+  display: grid;
+  grid-template-rows: 40px 1fr;
+}
+
+.gallery {
+  --image-size: 80px;
+  --gap: 8px;
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(3, var(--image-size));
+  height: calc(var(--image-size) * 3 + 2 * var(--gap));
+  overflow: auto;
+}
+
+.gallery img {
+  width: var(--image-size);
+  height: var(--image-size);
+}

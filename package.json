@@ -1,0 +1,31 @@
+{
+  "name": "b",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "prettier": "^3.3.3",
+    "vite": "^6.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@chee/dsp": "^1.0.2",
+    "dct": "^0.1.0",
+    "fft-js": "^0.0.12",
+    "fft.js": "^4.0.4",
+    "jimp": "^1.6.0",
+    "mathjs": "^13.2.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "webfft": "^1.0.3"
+  }
+}
