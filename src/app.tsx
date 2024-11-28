@@ -3,20 +3,18 @@ import { useState } from 'react';
 import './app.css';
 import { FileInput } from './components/file-input';
 import { Mask } from './components/mask';
-import { Masked } from './components/masked';
-import { Original } from './components/original';
-import { Spectrum } from './components/spectrum';
-import { buildPixels, getChannels } from './components/spectrum/get-channels';
+import { Renderer } from './components/renderer';
+import { buildPixels, getChannels } from './helpers/get-channels';
 import { fft2 } from './fft2';
 import { reshape } from './helpers';
 import { imageResize } from './helpers/image-resize';
-import { Result } from './components/result';
 
 export const App = () => {
   const [imageData, setImageData] = useState<ImageData>();
   const [spectrumData, setSpectrumData] = useState<ImageData>();
   const [masked, setMasked] = useState<ImageData | undefined>();
   const [result, setResult] = useState<ImageData | undefined>();
+  const [spectrums, setSpectrums] = useState<number[][][]>();
 
   const handleImageChange = (data: ImageData) => {
     const resizedImage = imageResize(data);
@@ -32,6 +30,7 @@ export const App = () => {
     const spectrumPixels = buildPixels([...realFlatSpectrum, a]);
 
     const spectrumData = new ImageData(Uint8ClampedArray.from(spectrumPixels), width, height);
+    setSpectrums(spectrum);
     setSpectrumData(spectrumData);
     setMasked(spectrumData);
   };
@@ -55,11 +54,11 @@ export const App = () => {
       </div>
 
       <div className="canvas-list">
-        <Original className="canvas-box" data={imageData} />
-        <Spectrum className="canvas-box" data={spectrumData} />
+        <Renderer className="canvas-box" data={imageData} title="Original" />
+        <Renderer className="canvas-box" data={spectrumData} title="Spectrum" />
         <Mask className="canvas-box" data={imageData} onChange={handleMaskChange} />
-        <Masked className="canvas-box" data={masked} />
-        <Result className="canvas-box" data={result} />
+        <Renderer className="canvas-box" data={masked} title="Masked" />
+        <Renderer className="canvas-box" data={result} title="Result" />
       </div>
     </div>
   );

@@ -20,7 +20,8 @@ body {
 .canvas-list {
   user-select: none;
   display: flex;
-  column-gap: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .input-box {

@@ -1,26 +1,28 @@
 import { useEffect, useRef, useState, type CSSProperties, type FC } from 'react';
+import styles from './index.module.css';
 
-export type MaskedProps = {
+export type RendererProps = {
   className?: string;
   style?: CSSProperties;
+  title?: string;
   data: ImageData | undefined;
 };
 
-export const Masked: FC<MaskedProps> = (props) => {
-  const { className, style, data } = props;
+export const Renderer: FC<RendererProps> = (props) => {
+  const { className, style, title, data } = props;
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
 
   useEffect(() => {
-    if (!data || !canvas) return;
+    if (!canvas || !data) return;
 
     canvas.width = data.width;
     canvas.height = data.height;
     canvas.getContext('2d')?.putImageData(data, 0, 0);
-  }, [data, canvas]);
+  }, [canvas, data]);
 
   return (
-    <div className={[className, 'masked'].join(' ')} style={style}>
-      <div className="input-box">masked</div>
+    <div className={[className, 'renderer'].join(' ')} style={style}>
+      <div className={styles.title}>{title}</div>
       <canvas ref={setCanvas} />
     </div>
   );
