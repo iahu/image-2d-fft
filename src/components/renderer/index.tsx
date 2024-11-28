@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FC } from 'react';
-import styles from './index.module.css';
+import { useEffect, useState, type CSSProperties, type FC } from 'react';
 
 export type RendererProps = {
   className?: string;
@@ -22,7 +21,7 @@ export const Renderer: FC<RendererProps> = (props) => {
 
   return (
     <div className={[className, 'renderer'].join(' ')} style={style}>
-      <div className={styles.title}>{title}</div>
+      <div className="input-box">{title}</div>
       <canvas ref={setCanvas} />
     </div>
   );

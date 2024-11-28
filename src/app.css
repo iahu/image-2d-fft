@@ -18,13 +18,16 @@ body {
 }
 
 .canvas-list {
-  user-select: none;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  user-select: none;
 }
 
 .input-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 40px;
   font-weight: bold;
 }
