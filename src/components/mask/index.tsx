@@ -90,6 +90,14 @@ export const Mask: FC<MaskProps> = (props) => {
         case ']':
           setBrushSize((prev) => updateBrushSize(prev + 3));
           break;
+        case 'i': {
+          if (!e.ctrlKey) return;
+          const ctx = canvas.getContext('2d')!;
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data.map((x, i) => ((i + 1) % 4 ? 255 - x : x));
+          ctx.putImageData(new ImageData(data, width, height), 0, 0);
+          handleChange();
+        }
       }
     };
 
