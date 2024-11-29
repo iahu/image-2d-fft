@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, type CSSProperties, type FC } from 'react';
+import circleMask from '@/assets/mask/circle.png';
 import './index.css';
+import { loadImage } from '@/helpers/load-image';
 
 export type MaskProps = {
   className?: string;
@@ -116,9 +118,10 @@ export const Mask: FC<MaskProps> = (props) => {
 
   useEffect(() => {
     if (!ctx) return;
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    handleChange();
+    loadImage(circleMask).then((img) => {
+      ctx.drawImage(img, 0, 0);
+      handleChange();
+    });
   }, [ctx, handleChange]);
 
   return (

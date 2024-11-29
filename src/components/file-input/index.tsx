@@ -1,9 +1,11 @@
-import type { FC } from 'react';
+import { useEffect, type FC } from 'react';
 import './index.css';
 import { readImage } from './read-image';
+import { loadImage } from '@/helpers/load-image';
 
 const modules = import.meta.glob<{ default: string }>('/src/assets/*.{jpg,png}', { eager: true });
 const images = Object.values(modules);
+const defaultImage = images[0].default;
 
 export type FileInputProps = {
   onChange?: (imageData: ImageData) => void;
@@ -31,6 +33,10 @@ export const FileInput: FC<FileInputProps> = (props) => {
     const clone = target.cloneNode() as HTMLImageElement;
     onChange?.(readImage(clone));
   };
+
+  useEffect(() => {
+    loadImage(defaultImage).then((img) => onChange?.(readImage(img)));
+  }, [onChange]);
 
   return (
     <div className="file-input">
