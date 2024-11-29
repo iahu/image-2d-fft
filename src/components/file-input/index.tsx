@@ -27,7 +27,9 @@ export const FileInput: FC<FileInputProps> = (props) => {
     reader.readAsDataURL(file);
   };
   const handleClick = (event: React.MouseEvent) => {
-    onChange?.(readImage(event.target as HTMLImageElement));
+    const target = event.target as HTMLImageElement;
+    const clone = target.cloneNode() as HTMLImageElement;
+    onChange?.(readImage(clone));
   };
 
   return (

@@ -1,11 +1,8 @@
-import { binaryCeil } from '@/helpers';
 import { createCanvas } from '@/helpers/create-canvas';
 
-export const imageResize = (image: ImageData, maxSize = 512) => {
+export const centering = (image: ImageData) => {
   const { width, height } = image;
-  const clampedSize = Math.min(maxSize, Math.max(width, height));
-  const powerSize = binaryCeil(clampedSize);
-
+  const powerSize = 512;
   const ctx = createCanvas(powerSize);
 
   ctx.fillStyle = '#fff';

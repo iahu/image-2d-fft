@@ -5,8 +5,8 @@ import { Mask } from './components/mask';
 import { Renderer } from './components/renderer';
 import { fft2, ifft2 } from './fft2';
 import { reshape, shift } from './helpers';
+import { centering } from './helpers/centering';
 import { buildPixels, getChannels } from './helpers/get-channels';
-import { imageResize } from './helpers/image-resize';
 import { magnitude } from './helpers/magnitude';
 
 export const App = () => {
@@ -18,11 +18,11 @@ export const App = () => {
   const [spectrums, setSpectrums] = useState<number[][]>();
 
   const handleImageChange = (data: ImageData) => {
-    const resizedImage = imageResize(data);
-    setOriginalImage(resizedImage);
+    const centeredImage = centering(data);
+    setOriginalImage(centeredImage);
 
-    const [r, g, b, a] = getChannels(resizedImage);
-    const { width, height } = resizedImage;
+    const [r, g, b, a] = getChannels(centeredImage);
+    const { width, height } = centeredImage;
 
     const spectrum = [r, g, b].map((c) => shift(fft2(reshape(c, [width, height]))));
     const flatSpectrum = spectrum.map((x) => x.flat());
@@ -75,15 +75,27 @@ export const App = () => {
 
   return (
     <div className="app">
-      <div className="source-list">
-        <FileInput onChange={handleImageChange} />
+      <div>
+        <h2>Image 2D FFT</h2>
+        <p>select or update a image file to do FFT. Draw on mask to filter spectrum. (white pass, black filter)</p>
+        <ul>
+          <li>x: switch brush color</li>
+          <li>ctrl-i: invert mask color</li>
+          <li>scroll wheel to zoom brush size</li>
+        </ul>
       </div>
 
-      <div className="canvas-list">
-        <Renderer className="canvas-box" data={originalImage} title="Original" />
-        <Renderer className="canvas-box" data={spectrumImage} title="Spectrum" />
-        <Mask className="canvas-box" data={originalImage} onChange={setMaskImage} />
-        <Renderer className="canvas-box" data={resultImage} title="Result" />
+      <div className="content">
+        <div className="source-list">
+          <FileInput onChange={handleImageChange} />
+        </div>
+
+        <div className="canvas-list">
+          <Renderer className="canvas-box" data={originalImage} title="Original" />
+          <Renderer className="canvas-box" data={spectrumImage} title="Spectrum" />
+          <Mask className="canvas-box" data={originalImage} onChange={setMaskImage} />
+          <Renderer className="canvas-box" data={resultImage} title="Result" />
+        </div>
       </div>
     </div>
   );
