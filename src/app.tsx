@@ -10,16 +10,16 @@ import { reshape, shift } from './helpers';
 import { imageResize } from './helpers/image-resize';
 
 export const App = () => {
-  const [imageData, setImageData] = useState<ImageData>();
-  const [spectrumData, setSpectrumData] = useState<ImageData>();
-  const [mask, setMask] = useState<ImageData | undefined>();
-  const [result, setResult] = useState<ImageData | undefined>();
+  const [originalImage, setOriginalImage] = useState<ImageData>();
+  const [spectrumImage, setSpectrumImage] = useState<ImageData>();
+  const [maskImage, setMaskImage] = useState<ImageData | undefined>();
+  const [resultImage, setResultImage] = useState<ImageData | undefined>();
   const [alpha, setAlpha] = useState<number[]>();
   const [spectrums, setSpectrums] = useState<number[][]>();
 
   const handleImageChange = (data: ImageData) => {
     const resizedImage = imageResize(data);
-    setImageData(resizedImage);
+    setOriginalImage(resizedImage);
 
     const [r, g, b, a] = getChannels(resizedImage);
     const { width, height } = resizedImage;
@@ -33,37 +33,32 @@ export const App = () => {
 
     setAlpha(a);
     setSpectrums(flatSpectrum);
-    setSpectrumData(spectrumData);
+    setSpectrumImage(spectrumData);
   };
 
   useEffect(() => {
-    if (!mask || !alpha || !spectrums) return;
+    if (!maskImage || !alpha || !spectrums) return;
 
-    const { data, width, height } = mask;
+    const { data, width, height } = maskImage;
     const maskedData: number[] = [];
     const rSpectrum: number[] = [];
     const gSpectrum: number[] = [];
     const bSpectrum: number[] = [];
 
     for (let i = 0; i < alpha.length; ++i) {
-      const x = data[4 * i];
+      const x = data[4 * i] / 255;
       const i2 = 2 * i;
-      maskedData.push(spectrums[0][i2], spectrums[1][i2], spectrums[2][i2]);
-      if (x < 125) {
-        rSpectrum.push(0, 0);
-        gSpectrum.push(0, 0);
-        bSpectrum.push(0, 0);
-        maskedData.push(0);
-      } else {
-        rSpectrum.push(spectrums[0][i2], spectrums[0][i2 + 1]);
-        gSpectrum.push(spectrums[1][i2], spectrums[1][i2 + 1]);
-        bSpectrum.push(spectrums[2][i2], spectrums[2][i2 + 1]);
-        maskedData.push(alpha[i]);
-      }
+      const r = spectrums[0][i2];
+      const g = spectrums[1][i2];
+      const b = spectrums[2][i2];
+      maskedData.push(r * x, g * x, b * x, alpha[i]);
+      rSpectrum.push(r * x, spectrums[0][i2 + 1] * x);
+      gSpectrum.push(g * x, spectrums[1][i2 + 1] * x);
+      bSpectrum.push(b * x, spectrums[2][i2 + 1] * x);
     }
 
     const maskedImage = new ImageData(Uint8ClampedArray.from(maskedData), width, height);
-    setSpectrumData(maskedImage);
+    setSpectrumImage(maskedImage);
 
     const rChannel = ifft2(shift(reshape(rSpectrum, [width * 2, height])));
     const gChannel = ifft2(shift(reshape(gSpectrum, [width * 2, height])));
@@ -71,8 +66,8 @@ export const App = () => {
 
     const resultData = buildPixels([rChannel.flat(), gChannel.flat(), bChannel.flat(), alpha]);
     const resultImage = new ImageData(Uint8ClampedArray.from(resultData), width, height);
-    setResult(resultImage);
-  }, [alpha, spectrums, mask]);
+    setResultImage(resultImage);
+  }, [alpha, spectrums, maskImage]);
 
   return (
     <div className="app">
@@ -81,10 +76,10 @@ export const App = () => {
       </div>
 
       <div className="canvas-list">
-        <Renderer className="canvas-box" data={imageData} title="Original" />
-        <Renderer className="canvas-box" data={spectrumData} title="Spectrum" />
-        <Mask className="canvas-box" data={imageData} onChange={setMask} />
-        <Renderer className="canvas-box" data={result} title="Result" />
+        <Renderer className="canvas-box" data={originalImage} title="Original" />
+        <Renderer className="canvas-box" data={spectrumImage} title="Spectrum" />
+        <Mask className="canvas-box" data={originalImage} onChange={setMaskImage} />
+        <Renderer className="canvas-box" data={resultImage} title="Result" />
       </div>
     </div>
   );

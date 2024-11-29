@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FC } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties, type FC } from 'react';
 import './index.css';
 
 export type MaskProps = {
@@ -27,11 +27,11 @@ export const Mask: FC<MaskProps> = (props) => {
   const wRatio = width / cWidth;
   const hRatio = height / cHeight;
 
-  const handleChange = () => {
+  const handleChange = useCallback(() => {
     if (!ctx) return;
 
     onChange?.(ctx.getImageData(0, 0, width, height));
-  };
+  }, [ctx, height, onChange, width]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
@@ -107,17 +107,18 @@ export const Mask: FC<MaskProps> = (props) => {
       window.removeEventListener('keydown', handleKeyDown);
       canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [canvas]);
+  }, [canvas, handleChange, height, width]);
 
   useEffect(() => {
     if (!ctx) return;
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  }, [ctx]);
+    handleChange();
+  }, [ctx, handleChange]);
 
   return (
     <div className={[className, 'mask'].join(' ')} style={style}>
-      <div className="input-box">mask</div>
+      <div className="input-box">Mask</div>
 
       <div className="mask-canvas">
         <canvas
