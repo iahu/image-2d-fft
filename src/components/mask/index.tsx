@@ -10,9 +10,12 @@ export type MaskProps = {
 
 const TWO_PI = Math.PI * 2;
 
+const updateBrushSize = (n: number) => Math.min(256, Math.max(1, n));
+
 export const Mask: FC<MaskProps> = (props) => {
   const { className, style, data, onChange } = props;
   const [brushSize, setBrushSize] = useState(60);
+  const [brushColor, setBrushColor] = useState('#fff');
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
   const [circle, setCircle] = useState<SVGCircleElement | null>();
 
@@ -36,12 +39,11 @@ export const Mask: FC<MaskProps> = (props) => {
     if (!ctx) return;
 
     ctx.beginPath();
-    ctx.fillStyle = e.altKey ? '#000' : '#fff';
+    ctx.fillStyle = brushColor;
     const { offsetX, offsetY } = e.nativeEvent;
     ctx.arc(offsetX * wRatio, offsetY * hRatio, brushSize, 0, TWO_PI);
     ctx.fill();
     ctx?.closePath();
-    handleChange();
   };
   const handlePointerMove = (e: React.PointerEvent) => {
     const { offsetX, offsetY } = e.nativeEvent;
@@ -54,14 +56,14 @@ export const Mask: FC<MaskProps> = (props) => {
     e.preventDefault();
 
     ctx.beginPath();
-    ctx.fillStyle = e.altKey ? '#000' : '#fff';
+    ctx.fillStyle = brushColor;
     ctx.arc(offsetX * wRatio, offsetY * hRatio, brushSize, 0, TWO_PI);
     ctx.fill();
     ctx?.closePath();
-    handleChange();
   };
   const handlePointerUp = (e: React.PointerEvent) => {
     (e.target as HTMLCanvasElement).releasePointerCapture(e.pointerId);
+    handleChange();
   };
   const handlePointerEnter = () => {
     circle?.style.removeProperty('display');
@@ -74,11 +76,35 @@ export const Mask: FC<MaskProps> = (props) => {
     if (!canvas) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      setBrushSize((prev) => Math.max(1, prev + e.deltaY));
+      setBrushSize((prev) => updateBrushSize(prev + e.deltaY));
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'x':
+          setBrushColor((prev) => (prev === '#000' ? '#fff' : '#000'));
+          break;
+        case '[':
+          setBrushSize((prev) => updateBrushSize(prev - 3));
+          break;
+        case ']':
+          setBrushSize((prev) => updateBrushSize(prev + 3));
+          break;
+        case 'i': {
+          if (!e.ctrlKey) return;
+          const ctx = canvas.getContext('2d')!;
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data.map((x, i) => ((i + 1) % 4 ? 255 - x : x));
+          ctx.putImageData(new ImageData(data, width, height), 0, 0);
+          handleChange();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
     canvas.addEventListener('wheel', handleWheel);
     return () => {
+      window.removeEventListener('keydown', handleKeyDown);
       canvas.removeEventListener('wheel', handleWheel);
     };
   }, [canvas]);
@@ -105,8 +131,19 @@ export const Mask: FC<MaskProps> = (props) => {
           width={width}
           height={height}
         />
-        <svg viewBox={`0 0 ${width} ${height}`} width={cWidth} height={cHeight} className="brush">
-          <circle ref={setCircle} cx="0" cy="0" r={brushSize} stroke="red" fill="none" strokeWidth="2"></circle>
+        <svg viewBox={`0 0 ${width} ${height}`} width={cWidth} height={cHeight} className="brush" style={{ opacity: 0.8 }}>
+          <circle
+            ref={setCircle}
+            cx="0"
+            cy="0"
+            r={brushSize}
+            stroke="red"
+            fill={`${brushColor}`}
+            strokeWidth="2"
+            style={{ display: 'none' }}
+          ></circle>
+          <line x1={width / 2} y1={0} x2={width / 2} y2={height} stroke="gray"></line>
+          <line x1={0} y1={height / 2} x2={width} y2={height / 2} stroke="gray"></line>
         </svg>
       </div>
     </div>
