@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './app.css';
 import { FileInput } from './components/file-input';
 import { Mask } from './components/mask';
@@ -17,7 +17,7 @@ export const App = () => {
   const [alpha, setAlpha] = useState<number[]>();
   const [spectrums, setSpectrums] = useState<number[][]>();
 
-  const handleImageChange = (data: ImageData) => {
+  const handleImageChange = useCallback((data: ImageData) => {
     const centeredImage = centering(data);
     setOriginalImage(centeredImage);
 
@@ -29,7 +29,7 @@ export const App = () => {
 
     setAlpha(a);
     setSpectrums(flatSpectrum);
-  };
+  }, []);
 
   useEffect(() => {
     if (!maskImage || !alpha || !spectrums) return;
@@ -79,9 +79,15 @@ export const App = () => {
         <h2>Image 2D FFT</h2>
         <p>select or update a image file to do FFT. Draw on mask to filter spectrum. (white pass, black filter)</p>
         <ul>
-          <li>x: switch brush color</li>
-          <li>ctrl-i: invert mask color</li>
-          <li>scroll wheel to zoom brush size</li>
+          <li>
+            press <kbd>x</kbd> switch brush color
+          </li>
+          <li>
+            press <kbd>ctrl-i</kbd> invert mask color
+          </li>
+          <li>
+            press <kbd>[</kbd> <kbd>]</kbd> or scroll wheel to zoom brush size
+          </li>
         </ul>
       </div>
 

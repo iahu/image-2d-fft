@@ -44,3 +44,10 @@ canvas {
   height: var(--canvas-size);
   border: 1px solid #eee;
 }
+
+kbd {
+  border: 0.5px solid #d3d3d3;
+  border-radius: 4px;
+  padding-inline: 4px;
+  background: #efefef;
+}

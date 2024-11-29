@@ -38,7 +38,7 @@ export const Mask: FC<MaskProps> = (props) => {
   const handlePointerDown = (e: React.PointerEvent) => {
     (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
     circle?.style.removeProperty('display');
-    if (!ctx) return;
+    if (!ctx || e.button !== 0) return;
 
     ctx.beginPath();
     ctx.fillStyle = brushColor;
