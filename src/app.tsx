@@ -1,13 +1,13 @@
-import FFT from 'fft.js';
 import { useEffect, useState } from 'react';
 import './app.css';
 import { FileInput } from './components/file-input';
 import { Mask } from './components/mask';
 import { Renderer } from './components/renderer';
-import { buildPixels, getChannels } from './helpers/get-channels';
 import { fft2, ifft2 } from './fft2';
 import { reshape, shift } from './helpers';
+import { buildPixels, getChannels } from './helpers/get-channels';
 import { imageResize } from './helpers/image-resize';
+import { magnitude } from './helpers/magnitude';
 
 export const App = () => {
   const [originalImage, setOriginalImage] = useState<ImageData>();
@@ -26,14 +26,9 @@ export const App = () => {
 
     const spectrum = [r, g, b].map((c) => shift(fft2(reshape(c, [width, height]))));
     const flatSpectrum = spectrum.map((x) => x.flat());
-    const fft = new FFT(flatSpectrum[0].length / 2);
-    const realFlatSpectrum = flatSpectrum.map((x) => fft.fromComplexArray(x));
-    const spectrumPixels = buildPixels([...realFlatSpectrum, a]);
-    const spectrumData = new ImageData(Uint8ClampedArray.from(spectrumPixels), width, height);
 
     setAlpha(a);
     setSpectrums(flatSpectrum);
-    setSpectrumImage(spectrumData);
   };
 
   useEffect(() => {
@@ -47,14 +42,23 @@ export const App = () => {
 
     for (let i = 0; i < alpha.length; ++i) {
       const x = data[4 * i] / 255;
-      const i2 = 2 * i;
-      const r = spectrums[0][i2];
-      const g = spectrums[1][i2];
-      const b = spectrums[2][i2];
-      maskedData.push(r * x, g * x, b * x, alpha[i]);
-      rSpectrum.push(r * x, spectrums[0][i2 + 1] * x);
-      gSpectrum.push(g * x, spectrums[1][i2 + 1] * x);
-      bSpectrum.push(b * x, spectrums[2][i2 + 1] * x);
+      const even = 2 * i;
+      const odd = even + 1;
+      const reR = spectrums[0][even] * x;
+      const reG = spectrums[1][even] * x;
+      const reB = spectrums[2][even] * x;
+      const imR = spectrums[0][odd] * x;
+      const imG = spectrums[1][odd] * x;
+      const imB = spectrums[2][odd] * x;
+
+      const r = magnitude(reR, imR),
+        g = magnitude(reG, imG),
+        b = magnitude(reB, imB);
+      maskedData.push(r, g, b, alpha[i]);
+
+      rSpectrum.push(reR, imR);
+      gSpectrum.push(reG, imG);
+      bSpectrum.push(reB, imB);
     }
 
     const maskedImage = new ImageData(Uint8ClampedArray.from(maskedData), width, height);

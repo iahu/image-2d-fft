@@ -3,7 +3,7 @@ import { createCanvas } from '@/helpers/create-canvas';
 
 export const imageResize = (image: ImageData, maxSize = 512) => {
   const { width, height } = image;
-  const clampedSize = Math.min(512, Math.max(width, height));
+  const clampedSize = Math.min(maxSize, Math.max(width, height));
   const powerSize = binaryCeil(clampedSize);
 
   const ctx = createCanvas(powerSize);

@@ -68,8 +68,13 @@ export const Mask: FC<MaskProps> = (props) => {
   const handlePointerEnter = () => {
     circle?.style.removeProperty('display');
   };
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (e: React.PointerEvent) => {
     circle?.style.setProperty('display', 'none');
+    const target = e.target as HTMLCanvasElement;
+    if (target.hasPointerCapture(e.pointerId)) {
+      target.releasePointerCapture(e.pointerId);
+      handleChange();
+    }
   };
 
   useEffect(() => {

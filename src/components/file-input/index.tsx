@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import './index.css';
 import { readImage } from './read-image';
 
-const modules = import.meta.glob<{ default: string }>('/src/assets/*.jpg', { eager: true });
+const modules = import.meta.glob<{ default: string }>('/src/assets/*.{jpg,png}', { eager: true });
 const images = Object.values(modules);
 
 export type FileInputProps = {
@@ -22,7 +22,7 @@ export const FileInput: FC<FileInputProps> = (props) => {
       if (!src) return;
       const img = new Image();
       img.src = src;
-      onChange?.(readImage(img));
+      img.onload = () => onChange?.(readImage(img));
     };
     reader.readAsDataURL(file);
   };
