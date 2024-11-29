@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build"
+    "build": "vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -19,6 +21,7 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "gh-pages": "^6.2.0",
     "prettier": "^3.3.3",
     "vite": "^6.0.0"
   },
@@ -26,7 +29,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.16.0",
     "fft.js": "^4.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
