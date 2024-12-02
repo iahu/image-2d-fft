@@ -75,7 +75,7 @@ export const Wave = () => {
           <WaveRenderer data={waveA} width={512} height={128} title="A: frequency: 6, amplitude: 1, bufferSize: 512" />
           <WaveRenderer data={waveB} width={512} height={128} title="B: frequency: 10, amplitude: 4, bufferSize: 512" />
           <WaveRenderer data={waveC} width={512} height={128} title="B: frequency: 20, amplitude: 6, bufferSize: 512" />
-          <WaveRenderer data={waveABC} width={512} height={128} title="A + B" />
+          <WaveRenderer data={waveABC} width={512} height={128} title="A + B + C" />
         </div>
 
         <hr />
