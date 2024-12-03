@@ -1,4 +1,4 @@
-import { lineY, plot, type Data } from '@observablehq/plot';
+import { lineY, plot, ruleY, type Data } from '@observablehq/plot';
 import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 export interface Props {
@@ -14,7 +14,7 @@ export const WaveRenderer: FC<Props> = (props) => {
 
   useEffect(() => {
     const _plot = plot({
-      marks: [lineY(data, { tip: 'xy' })],
+      marks: [lineY(data, { tip: 'xy' }), ruleY([0])],
       width,
       height,
     });
