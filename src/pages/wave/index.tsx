@@ -4,9 +4,11 @@ import FFT from 'fft.js';
 import './index.css';
 import { wave } from './wave';
 
-const waveA = wave(6, 1, 256, 256);
-const waveB = wave(10, 4, 256, 256);
-const waveC = wave(20, 6, 256, 256);
+const SIMPLE_RATE = 256;
+const BUFFER_SIZE = 512;
+const waveA = wave(6, 1, SIMPLE_RATE, BUFFER_SIZE);
+const waveB = wave(10, 4, SIMPLE_RATE, BUFFER_SIZE);
+const waveC = wave(20, 6, SIMPLE_RATE, BUFFER_SIZE);
 const waveABC = waveA.map((x, i) => x + waveB[i] + waveC[i]);
 
 const toMagnitude = (phasors: number[]) => {
@@ -31,37 +33,43 @@ const invTransform = (spectrum: number[]) => {
   return fft.fromComplexArray(out);
 };
 
-const bandPassFilter = (spectrum: number[], low: number, hight: number) => {
+const index2Freq = (simpleRate: number, spectrumLength: number, i: number) => {
+  if (i < spectrumLength / 2) return i * (simpleRate / spectrumLength);
+  return (spectrumLength - i) * (simpleRate / spectrumLength);
+};
+
+const bandPassFilter = (spectrum: number[], simpleRate: number, low: number, hight: number) => {
   const magnitude = toMagnitude(spectrum);
   const filtered: number[] = [];
   const length = magnitude.length;
-
   for (let i = 0; i < length; ++i) {
-    const positiveBand = low < i && i < hight;
-    const negativeBand = length - hight < i && i < length - low;
-    if (positiveBand || negativeBand) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
+    const freq = index2Freq(simpleRate, length, i);
+    const positiveBand = low < freq && freq < hight;
+    if (positiveBand) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
     else filtered.push(0, 0);
   }
   return filtered;
 };
 
-const lowPassFilter = (spectrum: number[], frequency: number) => {
+const lowPassFilter = (spectrum: number[], simpleRate: number, frequency: number) => {
   const magnitude = toMagnitude(spectrum);
   const filtered: number[] = [];
   const length = magnitude.length;
   for (let i = 0; i < length; ++i) {
-    if (i < frequency || i > length - frequency) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
+    const freq = index2Freq(simpleRate, length, i);
+    if (freq < frequency) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
     else filtered.push(0, 0);
   }
   return filtered;
 };
 
-const hightPassFilter = (spectrum: number[], frequency: number) => {
+const hightPassFilter = (spectrum: number[], simpleRate: number, frequency: number) => {
   const magnitude = toMagnitude(spectrum);
   const filtered: number[] = [];
   const length = magnitude.length;
   for (let i = 0; i < length; ++i) {
-    if (frequency < i && i < length - frequency) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
+    const freq = index2Freq(simpleRate, length, i);
+    if (frequency < freq) filtered.push(spectrum[2 * i], spectrum[2 * i + 1]);
     else filtered.push(0, 0);
   }
   return filtered;
@@ -71,9 +79,9 @@ export const Wave = () => {
   return (
     <div className="wave">
       <h2>Periodic Wave FFT filter demo</h2>
-      <p>wave simple rate: 256</p>
+      <p>wave simple rate: {SIMPLE_RATE}</p>
 
-      <h4>1. Waves</h4>
+      <h4>1. Original Waves</h4>
       <div>
         <div className="flex flex-wrap cg-20">
           <WaveRenderer data={waveA} width={512} height={128} title="A: frequency: 6, amplitude: 1" />
@@ -84,7 +92,7 @@ export const Wave = () => {
 
         <hr />
 
-        <h4>2. Magnitude</h4>
+        <h4>2. FFT Magnitude</h4>
         <div className="flex flex-wrap cg-20">
           <WaveRenderer data={toMagnitude(transform(waveA))} width={512} height={128} title="magnitude of FFT(A)" />
           <WaveRenderer data={toMagnitude(transform(waveB))} width={512} height={128} title="magnitude of FFT(B)" />
@@ -97,27 +105,52 @@ export const Wave = () => {
         <h4>3. Filters and Reconstruct</h4>
 
         <div className="flex flex-wrap cg-20">
-          <WaveRenderer data={toMagnitude(lowPassFilter(transform(waveABC), 10))} width={512} height={128} title="lowPassFilter(10)" />
-          <WaveRenderer data={invTransform(lowPassFilter(transform(waveABC), 10))} width={512} height={128} title="reconstruct(A)" />
+          <WaveRenderer
+            data={toMagnitude(lowPassFilter(transform(waveABC), SIMPLE_RATE, 10))}
+            width={512}
+            height={128}
+            title="lowPassFilter(10)"
+          />
+          <WaveRenderer
+            data={invTransform(lowPassFilter(transform(waveABC), SIMPLE_RATE, 10))}
+            width={512}
+            height={128}
+            title="reconstruct(A)"
+          />
         </div>
 
         <br />
 
         <div className="flex flex-wrap cg-20">
           <WaveRenderer
-            data={toMagnitude(bandPassFilter(transform(waveABC), 9, 11))}
+            data={toMagnitude(bandPassFilter(transform(waveABC), SIMPLE_RATE, 9, 11))}
             width={512}
             height={128}
             title="bandPassFilter(9, 11)"
           />
-          <WaveRenderer data={invTransform(bandPassFilter(transform(waveABC), 9, 11))} width={512} height={128} title="reconstruct(B)" />
+          <WaveRenderer
+            data={invTransform(bandPassFilter(transform(waveABC), SIMPLE_RATE, 9, 11))}
+            width={512}
+            height={128}
+            title="reconstruct(B)"
+          />
         </div>
 
         <br />
 
         <div className="flex flex-wrap cg-20">
-          <WaveRenderer data={toMagnitude(hightPassFilter(transform(waveABC), 18))} width={512} height={128} title="hightPassFilter(18)" />
-          <WaveRenderer data={invTransform(hightPassFilter(transform(waveABC), 18))} width={512} height={128} title="reconstruct(C)" />
+          <WaveRenderer
+            data={toMagnitude(hightPassFilter(transform(waveABC), SIMPLE_RATE, 18))}
+            width={512}
+            height={128}
+            title="hightPassFilter(18)"
+          />
+          <WaveRenderer
+            data={invTransform(hightPassFilter(transform(waveABC), SIMPLE_RATE, 18))}
+            width={512}
+            height={128}
+            title="reconstruct(C)"
+          />
         </div>
       </div>
     </div>
