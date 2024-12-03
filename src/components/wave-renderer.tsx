@@ -1,8 +1,8 @@
-import { lineY, plot } from '@observablehq/plot';
+import { lineY, plot, type Data } from '@observablehq/plot';
 import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 export interface Props {
-  data: ArrayLike<number>;
+  data: Data;
   width?: number;
   height?: number;
   title?: ReactNode;
@@ -14,7 +14,7 @@ export const WaveRenderer: FC<Props> = (props) => {
 
   useEffect(() => {
     const _plot = plot({
-      marks: [lineY(data)],
+      marks: [lineY(data, { tip: 'xy' })],
       width,
       height,
     });
@@ -25,7 +25,7 @@ export const WaveRenderer: FC<Props> = (props) => {
 
   return (
     <div className="wave-renderer">
-      <h4 className="title">{title}</h4>
+      <h5 style={{ color: '#444' }}>{title}</h5>
       <div ref={canvasRef}></div>
     </div>
   );

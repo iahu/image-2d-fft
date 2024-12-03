@@ -4,9 +4,9 @@ import FFT from 'fft.js';
 import './index.css';
 import { wave } from './wave';
 
-const waveA = wave(6, 1, 512);
-const waveB = wave(10, 4, 512);
-const waveC = wave(20, 6, 512);
+const waveA = wave(6, 1, 256, 256);
+const waveB = wave(10, 4, 256, 256);
+const waveC = wave(20, 6, 256, 256);
 const waveABC = waveA.map((x, i) => x + waveB[i] + waveC[i]);
 
 const toMagnitude = (phasors: number[]) => {
@@ -31,7 +31,7 @@ const invTransform = (spectrum: number[]) => {
   return fft.fromComplexArray(out);
 };
 
-const bandFilter = (spectrum: number[], low: number, hight: number) => {
+const bandPassFilter = (spectrum: number[], low: number, hight: number) => {
   const magnitude = toMagnitude(spectrum);
   const filtered: number[] = [];
   const length = magnitude.length;
@@ -70,56 +70,54 @@ const hightPassFilter = (spectrum: number[], frequency: number) => {
 export const Wave = () => {
   return (
     <div className="wave">
+      <h2>Periodic Wave FFT filter demo</h2>
+      <p>wave simple rate: 256</p>
+
+      <h4>1. Waves</h4>
       <div>
         <div className="flex flex-wrap cg-20">
-          <WaveRenderer data={waveA} width={512} height={128} title="A: frequency: 6, amplitude: 1, bufferSize: 512" />
-          <WaveRenderer data={waveB} width={512} height={128} title="B: frequency: 10, amplitude: 4, bufferSize: 512" />
-          <WaveRenderer data={waveC} width={512} height={128} title="B: frequency: 20, amplitude: 6, bufferSize: 512" />
+          <WaveRenderer data={waveA} width={512} height={128} title="A: frequency: 6, amplitude: 1" />
+          <WaveRenderer data={waveB} width={512} height={128} title="B: frequency: 10, amplitude: 4" />
+          <WaveRenderer data={waveC} width={512} height={128} title="C: frequency: 20, amplitude: 6" />
           <WaveRenderer data={waveABC} width={512} height={128} title="A + B + C" />
         </div>
 
         <hr />
 
+        <h4>2. Magnitude</h4>
         <div className="flex flex-wrap cg-20">
           <WaveRenderer data={toMagnitude(transform(waveA))} width={512} height={128} title="magnitude of FFT(A)" />
           <WaveRenderer data={toMagnitude(transform(waveB))} width={512} height={128} title="magnitude of FFT(B)" />
           <WaveRenderer data={toMagnitude(transform(waveC))} width={512} height={128} title="magnitude of FFT(C)" />
-          <WaveRenderer data={toMagnitude(transform(waveABC))} width={512} height={128} title="magnitude of FFT(A+B+C)" />
+          <WaveRenderer data={toMagnitude(transform(waveABC))} width={512} height={128} title="magnitude of FFT(A + B + C)" />
         </div>
 
         <hr />
 
-        <div className="flex flex-wrap cg-20">
-          <WaveRenderer data={toMagnitude(hightPassFilter(transform(waveABC), 20))} width={512} height={128} title="hightPassFilter(20)" />
-          <WaveRenderer
-            data={invTransform(hightPassFilter(transform(waveABC), 20))}
-            width={512}
-            height={128}
-            title="inverseTransform from filtered"
-          />
-        </div>
-
-        <hr />
+        <h4>3. Filters and Reconstruct</h4>
 
         <div className="flex flex-wrap cg-20">
           <WaveRenderer data={toMagnitude(lowPassFilter(transform(waveABC), 10))} width={512} height={128} title="lowPassFilter(10)" />
-          <WaveRenderer
-            data={invTransform(lowPassFilter(transform(waveABC), 10))}
-            width={512}
-            height={128}
-            title="inverseTransform from filtered"
-          />
+          <WaveRenderer data={invTransform(lowPassFilter(transform(waveABC), 10))} width={512} height={128} title="reconstruct(A)" />
         </div>
-        <hr />
+
+        <br />
 
         <div className="flex flex-wrap cg-20">
-          <WaveRenderer data={toMagnitude(bandFilter(transform(waveABC), 10, 20))} width={512} height={128} title="bandFilter(8, 20)" />
           <WaveRenderer
-            data={invTransform(bandFilter(transform(waveABC), 10, 20))}
+            data={toMagnitude(bandPassFilter(transform(waveABC), 9, 11))}
             width={512}
             height={128}
-            title="inverseTransform from filtered"
+            title="bandPassFilter(9, 11)"
           />
+          <WaveRenderer data={invTransform(bandPassFilter(transform(waveABC), 9, 11))} width={512} height={128} title="reconstruct(B)" />
+        </div>
+
+        <br />
+
+        <div className="flex flex-wrap cg-20">
+          <WaveRenderer data={toMagnitude(hightPassFilter(transform(waveABC), 18))} width={512} height={128} title="hightPassFilter(18)" />
+          <WaveRenderer data={invTransform(hightPassFilter(transform(waveABC), 18))} width={512} height={128} title="reconstruct(C)" />
         </div>
       </div>
     </div>
