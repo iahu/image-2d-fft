@@ -1,4 +1,4 @@
-import { lineY, plot, pointerX, ruleX, ruleY, type Data } from '@observablehq/plot';
+import { lineY, plot, pointerX, tip, type Data } from '@observablehq/plot';
 import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 export interface Props {
@@ -10,17 +10,14 @@ export interface Props {
 }
 
 export const WaveRenderer: FC<Props> = (props) => {
-  const { data, width, height, title, sx } = props;
+  const { data, width, height, title, sx = 1 } = props;
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const scaledData = sx === undefined ? data : Array.from(data).map((value, i) => ({ frequency: i * sx, value }));
+    const scaledData = Array.from(data).map((value, i) => ({ frequency: i * sx, value }));
     const _plot = plot({
-      marks: [
-        lineY(scaledData, { tip: 'xy', x: 'frequency', y: 'value' }),
-        ruleY([0]),
-        ruleX(scaledData, pointerX({ x: 'frequency', py: 'value', stroke: 'red' })),
-      ],
+      y: { grid: true, nice: true, inset: 5 },
+      marks: [lineY(scaledData, { x: 'frequency', y: 'value' }), tip(scaledData, pointerX({ x: 'frequency', y: 'value' }))],
       width,
       height,
     });
