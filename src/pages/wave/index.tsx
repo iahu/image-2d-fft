@@ -7,6 +7,7 @@ import { wave } from './wave';
 const SIMPLE_RATE = 1024;
 const BUFFER_SIZE = 256;
 
+const st = 1 / SIMPLE_RATE;
 const sx = SIMPLE_RATE / BUFFER_SIZE;
 
 const waveA = wave(12, 1, SIMPLE_RATE, BUFFER_SIZE);
@@ -92,10 +93,10 @@ export const Wave = () => {
       <h4>1. Original Waves</h4>
       <div>
         <div className="flex flex-wrap cg-20">
-          <WaveRenderer sx={sx} labelX="time" data={waveA} width={width} height={height} title="A: frequency: 12, amplitude: 1" />
-          <WaveRenderer sx={sx} labelX="time" data={waveB} width={width} height={height} title="B: frequency: 40, amplitude: 3" />
-          <WaveRenderer sx={sx} labelX="time" data={waveC} width={width} height={height} title="C: frequency: 100, amplitude: 6" />
-          <WaveRenderer sx={sx} labelX="time" data={waveABC} width={width} height={height} title="Mix: A + B + C" />
+          <WaveRenderer sx={st} labelX="time(s)" data={waveA} width={width} height={height} title="A: frequency: 12, amplitude: 1" />
+          <WaveRenderer sx={st} labelX="time(s)" data={waveB} width={width} height={height} title="B: frequency: 40, amplitude: 3" />
+          <WaveRenderer sx={st} labelX="time(s)" data={waveC} width={width} height={height} title="C: frequency: 100, amplitude: 6" />
+          <WaveRenderer sx={1 / SIMPLE_RATE} labelX="time(s)" data={waveABC} width={width} height={height} title="Mix: A + B + C" />
         </div>
 
         <hr />
@@ -121,8 +122,8 @@ export const Wave = () => {
             title="lowPassFilter(20)"
           />
           <WaveRenderer
-            sx={sx}
-            labelX="time"
+            sx={st}
+            labelX="time(s)"
             data={invTransform(lowPassFilter(transform(waveABC), SIMPLE_RATE, 20))}
             width={width}
             height={height}
@@ -139,8 +140,8 @@ export const Wave = () => {
             title="bandPassFilter(35, 45)"
           />
           <WaveRenderer
-            sx={sx}
-            labelX="time"
+            sx={st}
+            labelX="time(s)"
             data={invTransform(bandPassFilter(transform(waveABC), SIMPLE_RATE, 35, 45))}
             width={width}
             height={height}
@@ -157,8 +158,8 @@ export const Wave = () => {
             title="hightPassFilter(95)"
           />
           <WaveRenderer
-            sx={sx}
-            labelX="time"
+            sx={st}
+            labelX="time(s)"
             data={invTransform(hightPassFilter(transform(waveABC), SIMPLE_RATE, 95))}
             width={width}
             height={height}

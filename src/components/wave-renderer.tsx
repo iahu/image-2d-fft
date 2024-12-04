@@ -12,7 +12,7 @@ export interface Props {
 }
 
 export const WaveRenderer: FC<Props> = (props) => {
-  const { data, width, height, title, sx = 1, labelX = 'frequency', labelY = 'value' } = props;
+  const { data, width, height, title, sx = 1, labelX = 'frequency(hz)', labelY = 'value' } = props;
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
